@@ -1,605 +1,635 @@
-# Regression Models and Gradient Descent Optimization
+# Regression Models and Gradient Descent for Disease Progression Prediction
 
-## Real-World Application: Disease Progression Prediction
+## 1. Project Overview
 
-This project implements and evaluates multiple regression models for a real-world regression problem and investigates the performance of **Gradient Descent optimization for Linear Regression**.
+This project implements and evaluates multiple **regression models** for a real-world machine learning application: **predicting a quantitative measure of disease progression** from baseline patient-related measurements.
 
-The project was designed around the following academic objectives:
+The project also implements **Gradient Descent from scratch for Linear Regression** and studies how the learning rate affects optimization, convergence behavior, and test-set performance.
 
-1. **Develop regression models for a real-world application and evaluate their performance using appropriate metrics.**
-2. **Implement and analyze the performance of Gradient Descent optimization for Linear Regression.**
-
-The implementation is organized as a reproducible Python project containing the dataset, modular source code, experimental results, graphs, and this detailed documentation.
+The work is designed to demonstrate both the **practical use of regression models** and the **mathematical optimization process behind Linear Regression**.
 
 ---
 
-## 1. Abstract
+## 2. Assignment Objectives
 
-Regression is a supervised machine learning technique used when the output variable is continuous. In this project, regression is applied to a real-world **disease progression prediction** problem. The dataset contains baseline measurements for patients and a quantitative target representing disease progression one year after the baseline measurements.
+The project addresses two main objectives:
 
-Four regression approaches are developed and compared:
+### Objective 1
+Develop regression models for a real-world application and evaluate their performance using suitable regression metrics.
 
-- Linear Regression
-- Polynomial Regression
-- Ridge Regression
-- Lasso Regression
+### Objective 2
+Implement Gradient Descent optimization for Linear Regression and analyze how different learning rates affect the training process and predictive performance.
 
-The models are evaluated using **Mean Absolute Error (MAE), Mean Squared Error (MSE), Root Mean Squared Error (RMSE), and R² score**.
+The implementation therefore combines:
 
-In addition, Linear Regression is implemented from scratch using **Batch Gradient Descent**. The experiment investigates how different learning rates affect the optimization process, final cost, prediction error, and R² score.
-
-The objective is not simply to obtain a numerical result, but to understand the relationship between model selection, preprocessing, optimization, evaluation metrics, convergence, and model limitations.
-
----
-
-## 2. Problem Statement
-
-A quantitative measure of disease progression must be predicted from a set of baseline patient measurements.
-
-The problem can be represented as:
-
-```text
-Input features
-     |
-     v
-Baseline measurements
-     |
-     v
-Regression Model
-     |
-     v
-Predicted disease-progression value
-```
-
-The project addresses two questions:
-
-1. How do different regression models perform on the same dataset?
-2. How does the learning rate affect Gradient Descent when training Linear Regression?
+- Data preprocessing
+- Multiple regression techniques
+- Model training and prediction
+- Regression evaluation metrics
+- Custom Batch Gradient Descent
+- Experimental comparison
+- Visualization of model and optimization behavior
 
 ---
 
-## 3. Motivation
+## 3. Problem Statement
 
-A regression model can help identify relationships between input variables and a continuous outcome. However, selecting a model only because it produces a particular score is not sufficient.
+In many real-world applications, the goal is not to predict a simple yes/no outcome but to estimate a **continuous numerical value**. Regression is appropriate for these tasks because it learns a relationship between input variables and a continuous target.
 
-This project therefore studies:
+In this project, the target represents a **disease progression measurement**. The model receives several baseline measurements as input and estimates the progression value.
 
-- model assumptions,
-- preprocessing requirements,
-- regularization,
-- nonlinear feature relationships,
-- prediction error,
-- optimization using Gradient Descent,
-- learning-rate behavior,
-- convergence,
-- and limitations of the experimental results.
+The central question is:
 
-The project also demonstrates the difference between using a ready-made machine learning estimator and understanding the underlying optimization algorithm.
+> How effectively can different regression models predict disease progression, and how does Gradient Descent behave when it is used to optimize the parameters of Linear Regression?
+
+This problem is useful for demonstrating model comparison because different regression techniques make different assumptions about the relationship between the features and the target.
 
 ---
 
-## 4. Objectives
+## 4. Application Context
 
-### Primary Objectives
+The project uses a disease progression prediction dataset containing numerical baseline measurements. The dataset is commonly used for demonstrating regression methods and contains:
 
-- Implement multiple regression models.
-- Apply the models to a real-world continuous prediction problem.
-- Split the dataset into training and testing sets.
-- Standardize input features using training data only.
-- Evaluate models using appropriate regression metrics.
-- Implement Linear Regression using Batch Gradient Descent from scratch.
-- Experiment with multiple learning rates.
-- Plot the Gradient Descent cost curve.
-- Compare model performance and interpret the results.
-- Document limitations, observations, and future improvements.
+- Age-related information
+- Sex-related information
+- Body-mass-related measurement
+- Blood-pressure-related measurement
+- Six blood-serum measurements
+- A continuous target representing disease progression
 
-### Learning Objectives
-
-After completing this project, the learner should understand:
-
-- what regression means,
-- how Linear Regression works,
-- why nonlinear features may be useful,
-- why regularization is introduced,
-- how MAE, MSE, RMSE and R² differ,
-- how Gradient Descent updates model parameters,
-- how learning rate affects optimization,
-- and why experimental results must be interpreted rather than simply reported.
+The goal here is **prediction and algorithm evaluation**, not clinical diagnosis. The models should be interpreted as machine-learning experiments and not as medical decision-making systems.
 
 ---
 
-# 5. Dataset Description
+## 5. Dataset Description
 
-## Dataset Used
-
-The project uses the **Diabetes Regression Dataset distributed with scikit-learn**.
-
-The dataset contains:
-
-- **442 observations**
-- **10 input features**
-- **1 continuous target variable**
-
-The target is a quantitative measure of disease progression one year after baseline.
-
-### Input Features
-
-| Feature | Description in the dataset | Type |
-|---|---|---|
-| `age` | Age-related baseline feature | Numerical |
-| `sex` | Sex-related encoded feature | Numerical |
-| `bmi` | Body-mass-index-related feature | Numerical |
-| `bp` | Blood-pressure-related feature | Numerical |
-| `s1` | Serum measurement 1 | Numerical |
-| `s2` | Serum measurement 2 | Numerical |
-| `s3` | Serum measurement 3 | Numerical |
-| `s4` | Serum measurement 4 | Numerical |
-| `s5` | Serum measurement 5 | Numerical |
-| `s6` | Serum measurement 6 | Numerical |
-| `target` | Quantitative disease progression measure | Continuous target |
-
-The feature values in the supplied scikit-learn version are already represented in a standardized form. The project still applies a separate training-set-based `StandardScaler` so that the experimental pipeline explicitly demonstrates correct scaling and ensures numerical conditioning for Gradient Descent.
-
-### Dataset Characteristics
-
-```text
-Rows        : 442
-Input cols  : 10
-Target cols : 1
-Problem     : Regression
-Output      : Continuous numerical value
-```
-
-The CSV copy is included in the repository under:
+The dataset used in this repository is stored in:
 
 ```text
  data/diabetes_regression.csv
 ```
 
-Therefore, the project can run without downloading the dataset during execution.
+### Dataset size
+
+- Total records: **442**
+- Input features: **10**
+- Target column: **1**
+- Total columns: **11**
+- Training samples: **353**
+- Testing samples: **89**
+- Train-test split: **80% / 20%**
+- Random state: **42**
+
+### Columns
+
+| Column | Description |
+|---|---|
+| `age` | Age-related baseline measurement |
+| `sex` | Sex-related baseline measurement |
+| `bmi` | Body Mass Index related measurement |
+| `bp` | Blood-pressure related measurement |
+| `s1` | Serum measurement 1 |
+| `s2` | Serum measurement 2 |
+| `s3` | Serum measurement 3 |
+| `s4` | Serum measurement 4 |
+| `s5` | Serum measurement 5 |
+| `s6` | Serum measurement 6 |
+| `target` | Continuous disease progression value to predict |
+
+The feature values are already numerically encoded and standardized in the source dataset. The implementation also performs training-set-based scaling so that the optimization algorithms operate under consistent numerical conditions.
+
+### Data quality check
+
+The dataset contains **no missing values** in the stored CSV used by this experiment.
 
 ---
 
-# 6. State of the Machine Learning Problem
+## 6. Why Regression?
 
-A supervised regression problem can be represented as:
+The target variable is continuous rather than a class label. Therefore, the problem is formulated as a **supervised regression problem**.
 
-```text
-X = input features
-Y = continuous target
+A regression model attempts to learn a function:
 
-Training data:
-(X_train, Y_train)
+\[
+\hat{y}=f(X)
+\]
 
-Testing data:
-(X_test, Y_test)
-```
+where:
 
-The objective is to learn a function:
+- \(X\) = input features
+- \(y\) = actual target
+- \(\hat{y}\) = predicted target
 
-```text
-f(X) -> Y
-```
-
-such that predictions on unseen test data are as close as possible to the actual target values.
+The quality of a regression model is measured by how close the predicted values are to the actual values.
 
 ---
 
-# 7. Data Preprocessing
+## 7. Project Workflow
 
-The preprocessing pipeline consists of the following steps:
+The complete workflow is:
 
 ```text
-CSV Dataset
-    |
-    v
-Separate features and target
-    |
-    v
+Dataset
+   |
+   v
+Data Loading
+   |
+   v
+Data Quality Check
+   |
+   v
 Train/Test Split
-    |
-    +---- Training Data ----> Fit StandardScaler
-    |                              |
-    |                              v
-    |                       Transform Training Data
-    |
-    +---- Testing Data ----> Transform using same scaler
-    |
-    v
-Model Training
-    |
-    v
-Prediction
-    |
-    v
-Evaluation
+   |
+   v
+Feature Scaling
+   |
+   +-------------------------------+
+   |                               |
+   v                               v
+Classical Regression Models   Custom Gradient Descent
+   |                               |
+   |                               +--> Multiple Learning Rates
+   |                               |
+   +---------------+---------------+
+                   |
+                   v
+              Predictions
+                   |
+                   v
+           Evaluation Metrics
+                   |
+                   v
+        CSV Results + Graphs
+                   |
+                   v
+        Comparative Analysis
 ```
-
-## 7.1 Train-Test Split
-
-The project uses:
-
-- Test size = 20%
-- Training size = 80%
-- Random state = 42
-
-The resulting split contains:
-
-```text
-Training samples = 353
-Testing samples  = 89
-```
-
-The test set is kept separate from model fitting so that performance can be evaluated on unseen observations.
-
-## 7.2 Feature Scaling
-
-Standardization is performed using:
-
-```text
-z = (x - mean) / standard deviation
-```
-
-The scaler is fitted only on the training data and then applied to both training and testing data.
-
-This prevents information from the test set from influencing preprocessing parameters.
-
-Feature scaling is particularly important for Gradient Descent because features with substantially different scales can cause uneven parameter updates and slow optimization.
 
 ---
 
-# 8. Regression Model 1 — Linear Regression
+# 8. Regression Models Implemented
 
-## 8.1 Definition
+Four regression approaches are included in the experiment:
 
-Linear Regression assumes that the target can be represented approximately as a weighted combination of the input features.
+1. Linear Regression
+2. Polynomial Regression of Degree 2
+3. Ridge Regression
+4. Lasso Regression
+
+In addition, a custom implementation called **LinearRegressionGD** is used to train Linear Regression with Batch Gradient Descent.
+
+---
+
+## 9. Model 1 – Linear Regression
+
+### Concept
+
+Linear Regression assumes that the target can be approximated by a linear combination of the input features.
 
 For multiple features:
 
-```text
-ŷ = b0 + b1x1 + b2x2 + ... + bnxn
-```
+\[
+\hat{y}=b_0+b_1x_1+b_2x_2+\cdots+b_nx_n
+\]
 
 where:
 
-- `ŷ` = predicted target
-- `b0` = intercept
-- `bi` = coefficient of feature i
-- `xi` = input feature
+- \(b_0\) = intercept
+- \(b_1,\ldots,b_n\) = coefficients
+- \(x_1,\ldots,x_n\) = input features
+- \(\hat y\) = predicted value
 
-## 8.2 Objective
+### Why it is included
 
-The model attempts to minimize prediction error, commonly using Mean Squared Error:
+Linear Regression provides a strong and interpretable **baseline model**. It gives a reference point against which more complex models can be compared.
 
-```text
-MSE = (1/m) Σ(yi - ŷi)^2
-```
+### Strengths
 
-## 8.3 Why Linear Regression Was Selected
+- Simple to understand
+- Fast to train
+- Easy to interpret
+- Suitable for a continuous target
+- Useful as a baseline
 
-Linear Regression is used as the **baseline model** because it is simple, interpretable, computationally efficient, and provides a reference against which more complex models can be compared.
+### Limitations
 
-## 8.4 Advantages
+- Assumes a linear relationship
+- May not capture complex nonlinear patterns
+- Can be sensitive to multicollinearity
+- May underfit a nonlinear dataset
 
-- Easy to understand.
-- Fast to train.
-- Coefficients are interpretable.
-- Good baseline for regression experiments.
+### Implementation
 
-## 8.5 Limitations
-
-- Assumes a linear relationship.
-- Sensitive to influential observations.
-- May underfit nonlinear relationships.
-- Correlated features can make coefficient interpretation difficult.
+The project uses `sklearn.linear_model.LinearRegression` for the standard Linear Regression experiment.
 
 ---
 
-# 9. Regression Model 2 — Polynomial Regression
+## 10. Model 2 – Polynomial Regression
 
-## 9.1 Definition
+### Concept
 
-Polynomial Regression extends Linear Regression by creating polynomial and interaction features.
+Polynomial Regression extends a linear model by adding polynomial combinations of the input features.
 
-For one feature:
+For a simple one-variable example:
 
-```text
-ŷ = b0 + b1x + b2x²
-```
+\[
+\hat y=b_0+b_1x+b_2x^2
+\]
 
-For multiple features, degree-2 transformation can contain:
+For multiple variables, degree-2 polynomial features can include squared terms and pairwise interaction terms.
 
-- original features,
-- squared features,
-- pairwise interaction terms.
+### Why degree 2?
 
-## 9.2 Configuration
+Degree 2 is selected as a controlled increase in model flexibility. It allows nonlinear relationships to be tested without making the feature space unnecessarily large.
+
+### Strengths
+
+- Can represent nonlinear relationships
+- More flexible than ordinary Linear Regression
+- Easy to combine with a linear estimator
+
+### Limitations
+
+- Feature count can grow quickly
+- More flexible models can overfit
+- Extra features can make the model harder to interpret
+- Higher-degree polynomials may become numerically unstable or overly complex
+
+### Implementation
 
 The project uses:
 
 ```text
-Polynomial degree = 2
+PolynomialFeatures(degree=2)
+        +
+LinearRegression()
 ```
 
-The polynomial features are then passed to Linear Regression.
-
-## 9.3 Why It Was Selected
-
-A purely linear model may fail to capture nonlinear relationships. Polynomial Regression provides a controlled way to test whether additional nonlinear terms improve generalization.
-
-## 9.4 Limitation
-
-Increasing polynomial degree can dramatically increase the number of features. This can increase computational cost and the risk of overfitting.
-
-Therefore, Polynomial Regression should not automatically be considered better simply because it is more flexible.
+inside a scikit-learn pipeline.
 
 ---
 
-# 10. Regression Model 3 — Ridge Regression
+## 11. Model 3 – Ridge Regression
 
-## 10.1 Definition
+### Concept
 
-Ridge Regression is Linear Regression with L2 regularization.
+Ridge Regression is Linear Regression with **L2 regularization**.
 
-The objective can be represented as:
+A simplified objective is:
+
+\[
+J(\theta)=MSE+\lambda\sum_j\theta_j^2
+\]
+
+The additional penalty discourages very large coefficients.
+
+### Why it is included
+
+Ridge is useful when predictors may be correlated or when a model needs some control against coefficient magnitude and overfitting.
+
+### Strengths
+
+- Reduces coefficient magnitude
+- Often improves numerical stability
+- Can help when features are correlated
+- Usually retains all features
+
+### Limitation
+
+Unlike Lasso, Ridge generally does not force coefficients exactly to zero, so it does not directly perform sparse feature selection.
+
+### Implementation
+
+The project uses:
 
 ```text
-J = MSE + λ Σ βj²
+Ridge(alpha=1.0)
 ```
 
-where `λ` controls the regularization strength.
-
-## 10.2 Configuration
-
-This project uses:
-
-```text
-alpha = 1.0
-```
-
-## 10.3 Purpose
-
-Regularization discourages excessively large coefficients and can improve numerical stability and generalization.
-
-## 10.4 Advantages
-
-- Reduces coefficient magnitude.
-- Helps with multicollinearity.
-- Can reduce overfitting.
-- Usually retains all features.
-
-## 10.5 Limitation
-
-Ridge does not normally force coefficients exactly to zero, so it is not a direct feature-selection method.
+The value of `alpha` controls the strength of regularization.
 
 ---
 
-# 11. Regression Model 4 — Lasso Regression
+## 12. Model 4 – Lasso Regression
 
-## 11.1 Definition
+### Concept
 
-Lasso Regression applies L1 regularization:
+Lasso Regression uses **L1 regularization**:
+
+\[
+J(\theta)=MSE+\lambda\sum_j|\theta_j|
+\]
+
+The absolute-value penalty encourages some coefficients to become exactly or approximately zero.
+
+### Why it is included
+
+Lasso allows the experiment to study a different regularization strategy from Ridge and to observe how sparse solutions can be produced.
+
+### Strengths
+
+- Can reduce the effect of irrelevant features
+- Can produce sparse coefficient vectors
+- Provides an alternative to Ridge regularization
+
+### Limitations
+
+- Can be sensitive to regularization strength
+- With strongly correlated predictors, Lasso may select one predictor and reduce others
+- Too much regularization can cause underfitting
+
+### Implementation
+
+The project uses:
 
 ```text
-J = MSE + λ Σ |βj|
+Lasso(alpha=0.01, max_iter=20000)
 ```
-
-## 11.2 Configuration
-
-This project uses:
-
-```text
-alpha = 0.01
-```
-
-## 11.3 Purpose
-
-L1 regularization can shrink some coefficients to zero. Therefore, Lasso can simultaneously perform regression and a form of feature selection.
-
-## 11.4 Advantages
-
-- Can produce sparse models.
-- Can reduce unnecessary features.
-- Provides regularization.
-
-## 11.5 Limitations
-
-- Performance depends on the regularization parameter.
-- Strong regularization can remove useful features.
-- Correlated features can make coefficient selection less stable.
 
 ---
 
-# 12. Why Multiple Models Were Selected
+# 13. Model Selection Logic
 
-The four models represent different modeling assumptions:
+The models were selected to compare four different levels of modeling behavior:
 
-| Model | Main Idea | Purpose in Experiment |
+| Model | Main Idea | Main Purpose in Experiment |
 |---|---|---|
-| Linear Regression | Linear relationship | Baseline |
-| Polynomial Regression | Nonlinear feature relationships | Test additional flexibility |
-| Ridge | L2 regularization | Test coefficient shrinkage |
-| Lasso | L1 regularization | Test sparsity/feature selection |
+| Linear Regression | Direct linear relationship | Baseline and interpretability |
+| Polynomial Regression | Nonlinear feature expansion | Test whether added flexibility helps |
+| Ridge | L2 regularization | Control coefficient magnitude |
+| Lasso | L1 regularization | Regularization and sparse coefficients |
 
-This selection allows the experiment to compare **baseline modeling, nonlinear expansion, L2 regularization, and L1 regularization** rather than testing several models that behave almost identically.
-
----
-
-# 13. Evaluation Metrics
-
-Regression models should be evaluated using metrics appropriate for continuous predictions.
-
-## 13.1 Mean Absolute Error — MAE
-
-```text
-MAE = (1/n) Σ |yi - ŷi|
-```
-
-MAE represents the average absolute difference between actual and predicted values.
-
-### Interpretation
-
-- Lower MAE is better.
-- MAE is relatively easy to interpret.
-- Every error contributes proportionally to the metric.
+This is more informative than testing several models that all behave in essentially the same way. The experiment compares a simple baseline, nonlinear expansion, and two distinct regularization strategies.
 
 ---
 
-## 13.2 Mean Squared Error — MSE
+# 14. Data Preprocessing
 
-```text
-MSE = (1/n) Σ (yi - ŷi)²
+Data preparation has a direct effect on model quality and optimization stability.
+
+## 14.1 Loading data
+
+The CSV file is loaded using Pandas.
+
+```python
+import pandas as pd
+
+df = pd.read_csv("data/diabetes_regression.csv")
 ```
 
-MSE squares each error before averaging.
+The target column is separated from the features:
 
-### Interpretation
-
-- Lower MSE is better.
-- Large errors receive greater penalty.
-
----
-
-## 13.3 Root Mean Squared Error — RMSE
-
-```text
-RMSE = √MSE
+```python
+X = df.drop(columns=["target"])
+y = df["target"]
 ```
 
-RMSE is useful because it is expressed in the same target units as the prediction error.
+## 14.2 Train-test split
 
-### Interpretation
+The data is divided into training and testing subsets:
 
-- Lower RMSE is better.
-- Large errors influence RMSE more strongly than MAE.
+- 80% training
+- 20% testing
+- `random_state=42`
 
----
+The training set is used for learning model parameters, while the test set is kept for final evaluation.
 
-## 13.4 R² Score
+## 14.3 Feature scaling
 
-```text
-R² = 1 - SSres / SStot
-```
+The project uses `StandardScaler`.
 
-R² measures the proportion of variation in the target explained by the model relative to a constant-mean baseline.
+Conceptually:
 
-### Interpretation
-
-- Higher R² is generally better for the same evaluation dataset.
-- R² should be interpreted together with error metrics and the experimental context.
-
----
-
-# 14. Gradient Descent
-
-## 14.1 What is Gradient Descent?
-
-Gradient Descent is an iterative optimization algorithm used to minimize a cost function.
-
-Instead of directly calculating the optimal parameters, the algorithm starts with an initial parameter vector and repeatedly moves it in the direction that decreases the cost.
-
-```text
-Initial parameters
-       |
-       v
-Calculate predictions
-       |
-       v
-Calculate errors
-       |
-       v
-Calculate gradient
-       |
-       v
-Update parameters
-       |
-       v
-Repeat
-```
-
----
-
-# 15. Gradient Descent Cost Function
-
-For Linear Regression, the project uses:
-
-```text
-J(θ) = (1 / 2m) Σ (ŷi - yi)²
-```
+\[
+z=\frac{x-\mu}{\sigma}
+\]
 
 where:
 
-- `J(θ)` = cost function
-- `m` = number of training observations
-- `ŷi` = predicted value
-- `yi` = actual value
-- `θ` = parameter vector
+- \(\mu\) = training-set mean
+- \(\sigma\) = training-set standard deviation
 
-The factor `1/2` simplifies the derivative.
+The scaler is fitted only on the training data and then applied to the test data. This avoids using test-set statistics during training.
 
----
+### Why scaling is especially important for Gradient Descent
 
-# 16. Gradient Calculation
+Gradient Descent updates all parameters according to their gradients. If one feature has values on a much larger scale than another, the optimization landscape can become poorly conditioned and parameter updates can behave unevenly.
 
-Using matrix notation:
-
-```text
-Xb = [1  X]
-
-ŷ = Xb θ
-
-error = ŷ - y
-
-gradient = (1/m) Xbᵀ error
-```
-
-The parameter update is:
-
-```text
-θ := θ - α gradient
-```
-
-where `α` is the learning rate.
+Scaling helps create a more numerically balanced optimization problem.
 
 ---
 
-# 17. Batch Gradient Descent Algorithm
+# 15. Evaluation Metrics
 
-The implementation in `src/models.py` follows this procedure:
+The experiment uses several regression metrics because no single metric describes every aspect of predictive performance.
+
+## 15.1 MAE – Mean Absolute Error
+
+\[
+MAE=\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat y_i|
+\]
+
+MAE measures the average absolute difference between actual and predicted values.
+
+### Interpretation
+
+Lower MAE means that predictions are, on average, closer to the actual target.
+
+### Advantage
+
+MAE is easy to understand and is less dominated by very large errors than MSE.
+
+---
+
+## 15.2 MSE – Mean Squared Error
+
+\[
+MSE=\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y_i)^2
+\]
+
+MSE squares every prediction error before averaging.
+
+### Interpretation
+
+Large errors receive disproportionately high penalties.
+
+### Advantage
+
+MSE is useful for optimization because it is differentiable and therefore works naturally with Gradient Descent.
+
+---
+
+## 15.3 RMSE – Root Mean Squared Error
+
+\[
+RMSE=\sqrt{MSE}
+\]
+
+RMSE is expressed in the same units as the target.
+
+### Interpretation
+
+A lower RMSE means better predictive agreement with the actual target, while larger errors are still penalized strongly.
+
+---
+
+## 15.4 R² – Coefficient of Determination
+
+\[
+R^2=1-\frac{SS_{res}}{SS_{tot}}
+\]
+
+R² describes how much variation in the target is explained by the model relative to a baseline based on the mean target.
+
+A higher R² is generally associated with stronger explanatory performance on the evaluated dataset.
+
+### Important note
+
+R² should not be viewed alone. A model can have a similar R² to another model while showing different error behavior under MAE or RMSE.
+
+---
+
+# 16. Gradient Descent – Core Idea
+
+Gradient Descent is an iterative optimization algorithm used to minimize a differentiable cost function.
+
+Instead of directly solving for parameters in one operation, Gradient Descent repeatedly moves the parameters in the direction that reduces the cost.
+
+The basic update rule is:
+
+\[
+\theta := \theta-\alpha\nabla J(\theta)
+\]
+
+where:
+
+- \(\theta\) = parameter vector
+- \(\alpha\) = learning rate
+- \(\nabla J(\theta)\) = gradient of the cost function
+
+The direction of the negative gradient points toward decreasing cost.
+
+---
+
+# 17. Linear Regression Cost Function for Gradient Descent
+
+For the custom implementation, the model uses Batch Gradient Descent.
+
+The feature matrix is augmented with a column of ones to represent the intercept:
+
+\[
+X_b=[1\ \ X]
+\]
+
+Predictions are calculated as:
+
+\[
+\hat y=X_b\theta
+\]
+
+The error vector is:
+
+\[
+e=\hat y-y
+\]
+
+The project uses the following half-MSE-style cost:
+
+\[
+J(\theta)=\frac{1}{2m}\sum_{i=1}^{m}(\hat y_i-y_i)^2
+\]
+
+The factor \(1/2\) simplifies the derivative.
+
+---
+
+# 18. Gradient Calculation
+
+The vectorized gradient used in the program is:
+
+\[
+\nabla J(\theta)=\frac{1}{m}X_b^T(X_b\theta-y)
+\]
+
+The parameter update becomes:
+
+\[
+\theta:=\theta-\alpha\frac{1}{m}X_b^T(X_b\theta-y)
+\]
+
+This formula is implemented directly using NumPy matrix operations.
+
+---
+
+# 19. Gradient Descent Algorithm Used in This Project
+
+The custom implementation follows these steps:
 
 ```text
-1. Add a column of ones to X for the intercept.
-2. Initialize all parameters to zero.
-3. Repeat for the selected number of iterations:
+1. Receive scaled training features X and target y.
+2. Add an intercept column of ones.
+3. Initialize all parameters to zero.
+4. Repeat for a fixed number of iterations:
       a. Calculate predictions.
       b. Calculate prediction errors.
       c. Calculate the cost.
       d. Calculate the gradient.
-      e. Update all parameters.
-4. Store the cost after every iteration.
-5. Use the final parameters for prediction.
+      e. Update the parameters.
+      f. Store the cost in cost_history.
+5. Return the learned parameters and training history.
+6. Use the learned parameters to predict unseen test samples.
 ```
 
-### Pseudocode
-
-```text
-initialize θ = 0
-
-for iteration = 1 to N:
-    prediction = Xθ
-    error = prediction - y
-    cost = mean(error²) / 2
-    gradient = Xᵀerror / m
-    θ = θ - learning_rate × gradient
-
-return θ
-```
+The implementation is a **Batch Gradient Descent** method because the gradient is computed using the complete training set in every iteration.
 
 ---
 
-# 18. Learning Rate Experiment
+# 20. Why Batch Gradient Descent?
 
-The following learning rates are tested:
+Batch Gradient Descent was selected because it is easy to understand mathematically and provides a stable learning curve for this relatively small dataset.
+
+### Advantages
+
+- Uses the full training set for each update
+- Produces deterministic updates for a fixed dataset and starting point
+- Gives a smooth cost trajectory
+- Makes the relationship between the learning rate and convergence easy to study
+
+### Limitation
+
+For very large datasets, processing all training examples in every iteration can become computationally expensive. Mini-batch or stochastic methods are often more suitable for large-scale training.
+
+---
+
+# 21. Target Scaling in Gradient Descent
+
+For the custom Gradient Descent experiment, the training target is standardized before optimization:
+
+\[
+y_{scaled}=\frac{y-y_{mean}}{y_{std}}
+\]
+
+The model therefore optimizes a numerically normalized target.
+
+After prediction, the values are converted back to the original target scale:
+
+\[
+y_{original}=y_{scaled}\times y_{std}+y_{mean}
+\]
+
+### Why this is done
+
+Scaling the target makes the magnitude of the loss and gradients easier to manage and helps the learning-rate experiments remain numerically stable.
+
+### Important interpretation detail
+
+The `Final Cost` reported in `gradient_descent_results.csv` is calculated on the **scaled training target**, while MAE and RMSE are calculated after transforming predictions back to the **original target scale**. Therefore, Final Cost should not be compared directly with the RMSE value as if they were the same metric.
+
+---
+
+# 22. Learning Rate Experiment
+
+Four learning rates were tested:
 
 ```text
 0.001
@@ -608,97 +638,332 @@ The following learning rates are tested:
 0.1
 ```
 
-The same maximum number of iterations is used for each experiment so that the effect of the learning rate can be compared under a controlled experimental setup.
-
-The experiment records:
-
-- final cost,
-- MAE,
-- RMSE,
-- R²,
-- and cost history.
-
-The cost curve allows us to observe whether the optimization is moving toward a stable minimum.
-
----
-
-# 19. Why Feature Scaling Matters for Gradient Descent
-
-Gradient Descent updates all parameters using the gradient.
-
-If one feature has a much larger numerical scale than another, its contribution to the gradient can dominate the update.
-
-This can lead to:
-
-- slower convergence,
-- uneven updates,
-- difficulty selecting a suitable learning rate.
-
-Therefore, the project standardizes input features before training the custom Gradient Descent model.
-
-The target is also standardized internally for stable optimization and transformed back to the original target scale before reporting prediction metrics.
-
----
-
-# 20. Experimental Methodology
-
-The experiment follows this procedure:
+Each experiment uses:
 
 ```text
-Step 1: Load dataset
-       ↓
-Step 2: Separate X and y
-       ↓
-Step 3: Split into train and test data
-       ↓
-Step 4: Fit scaler using training data
-       ↓
-Step 5: Transform training and testing features
-       ↓
-Step 6: Train Linear Regression
-       ↓
-Step 7: Train Polynomial Regression
-       ↓
-Step 8: Train Ridge Regression
-       ↓
-Step 9: Train Lasso Regression
-       ↓
-Step 10: Calculate MAE/MSE/RMSE/R²
-       ↓
-Step 11: Implement custom Gradient Descent
-       ↓
-Step 12: Test multiple learning rates
-       ↓
-Step 13: Save CSV results
-       ↓
-Step 14: Generate graphs
-       ↓
-Step 15: Analyze results
+3000 iterations
 ```
 
----
+The purpose is to observe how the learning rate changes:
 
-# 21. Software and Hardware Requirements
-
-## Software
-
-- Python 3.10 or newer recommended
-- NumPy
-- Pandas
-- Scikit-learn
-- Matplotlib
-- Git
-- GitHub
-
-## Hardware
-
-The project is small enough to run on a normal student laptop or desktop.
-
-No GPU is required.
+- The final training cost
+- The optimization trajectory
+- Test-set MAE
+- Test-set RMSE
+- Test-set R²
 
 ---
 
-# 22. Project Architecture
+# 23. Learning Rate Behavior
+
+### Very small learning rate
+
+A small learning rate produces small parameter updates. The optimization may move toward the minimum slowly.
+
+### Moderate learning rate
+
+A well-selected learning rate can reduce cost efficiently while maintaining stable updates.
+
+### Large learning rate
+
+A learning rate that is too large can overshoot the minimum, oscillate, or diverge depending on the optimization problem.
+
+The exact behavior depends on feature scaling, the dataset, initialization, the cost function, and the number of iterations.
+
+---
+
+# 24. Why Multiple Metrics Are Needed
+
+Consider two models:
+
+- Model A may have slightly lower MAE.
+- Model B may have slightly lower RMSE.
+- Model C may have a slightly higher R².
+
+Those outcomes describe different aspects of performance.
+
+Therefore, the experiment reports all four major metrics instead of selecting a model from a single number.
+
+The final interpretation should consider:
+
+1. Average error magnitude
+2. Sensitivity to large errors
+3. Explained variance
+4. Model complexity
+5. Optimization behavior
+
+---
+
+# 25. Experimental Results – Regression Models
+
+The recorded test-set results from the included experiment are:
+
+| Model | MAE | MSE | RMSE | R² |
+|---|---:|---:|---:|---:|
+| Linear Regression | 42.7941 | 2900.1936 | 53.8534 | 0.4526 |
+| Polynomial Regression (Degree 2) | 43.5817 | 3096.0283 | 55.6420 | 0.4156 |
+| Ridge Regression | 42.8120 | 2892.0146 | 53.7775 | 0.4541 |
+| Lasso Regression | 42.7950 | 2898.3680 | 53.8365 | 0.4529 |
+
+> Timing and numerical results can change slightly if the experiment is rerun in a different software environment or with changed preprocessing parameters. The table above records the results produced with the included configuration.
+
+---
+
+# 26. Interpretation of Regression Results
+
+## Linear Regression
+
+Linear Regression provides a baseline R² of approximately **0.4526** with an MAE of approximately **42.79**.
+
+This shows that a linear model captures a meaningful portion of the relationship in the dataset, but a substantial amount of variation remains unexplained.
+
+## Polynomial Regression
+
+The degree-2 polynomial model records:
+
+- Higher MAE
+- Higher MSE
+- Higher RMSE
+- Lower R²
+
+than the basic Linear Regression in this experiment.
+
+This means that adding degree-2 polynomial terms did **not** improve generalization on the test set for this configuration.
+
+A more complex feature representation does not automatically result in better predictive performance. The additional flexibility can increase variance or fit patterns that do not generalize to unseen data.
+
+## Ridge Regression
+
+Ridge achieves the lowest RMSE in the model-comparison table and the highest R² among the four standard regression models in this particular run:
+
+- RMSE ≈ **53.78**
+- R² ≈ **0.4541**
+
+The improvement over ordinary Linear Regression is small rather than dramatic. This suggests that regularization provides a modest change for this dataset and parameter setting.
+
+## Lasso Regression
+
+Lasso performs very close to Linear Regression:
+
+- MAE ≈ **42.7950**
+- RMSE ≈ **53.8365**
+- R² ≈ **0.4529**
+
+The results suggest that, with `alpha=0.01`, L1 regularization changes the model only slightly relative to the baseline.
+
+---
+
+# 27. Important Comparative Observation
+
+The results demonstrate that **greater model complexity is not automatically better**.
+
+The degree-2 Polynomial Regression model has more representational flexibility but produces worse test-set performance than the simpler Linear Regression model in this experiment.
+
+At the same time, Ridge changes the objective through regularization and produces a small improvement in RMSE and R².
+
+This is an important machine-learning principle:
+
+> Model complexity should be justified by generalization performance, not by complexity alone.
+
+---
+
+# 28. Experimental Results – Gradient Descent
+
+The learning-rate experiments produced the following results:
+
+| Learning Rate | Iterations | Final Cost | MAE | RMSE | R² |
+|---:|---:|---:|---:|---:|---:|
+| 0.001 | 3000 | 0.238234 | 42.994994 | 53.604864 | 0.457645 |
+| 0.01 | 3000 | 0.236856 | 42.865809 | 53.722332 | 0.455265 |
+| 0.05 | 3000 | 0.235534 | 42.815545 | 53.785936 | 0.453974 |
+| 0.1 | 3000 | 0.235382 | 42.799299 | 53.834207 | 0.452994 |
+
+---
+
+# 29. Interpretation of Gradient Descent Results
+
+## Effect on training cost
+
+The recorded final training cost decreases as the learning rate increases from 0.001 to 0.1 in this experiment:
+
+```text
+0.001  ->  0.238234
+0.01   ->  0.236856
+0.05   ->  0.235534
+0.1    ->  0.235382
+```
+
+This indicates that, under the fixed 3000-iteration budget and current scaling, the larger learning rates moved the parameters closer to a lower training objective within the allotted iterations.
+
+## Effect on test performance
+
+The test results show a different pattern. The learning rate of 0.001 has the highest R² and lowest RMSE among the four Gradient Descent runs shown above.
+
+This is an important observation because **lower training cost does not automatically mean better test-set performance**.
+
+A model is ultimately evaluated on unseen data, and optimization quality and generalization are related but not identical objectives.
+
+## What can be concluded
+
+The tested learning rates are all stable under the current configuration. None of the recorded runs shows divergence in the final reported cost.
+
+However, the experiment also shows why learning-rate selection is an optimization problem: different rates can reach different parameter states within a fixed iteration budget, and the resulting test errors can vary.
+
+---
+
+# 30. Gradient Descent Cost Curve
+
+The graph:
+
+```text
+ graphs/gradient_descent_cost.png
+```
+
+plots the cost across iterations for the main demonstration learning rate (`0.05`).
+
+### Purpose of the graph
+
+The cost curve visually demonstrates whether the optimization process is moving toward lower error.
+
+A typical successful curve has a rapidly decreasing section followed by a flatter region as the parameters approach a region of lower cost.
+
+### How to interpret it
+
+- Steep downward movement: parameters are learning quickly.
+- Gradual downward movement: optimization continues but improvement is slower.
+- Flat curve: the algorithm may be close to convergence or the learning rate may be too small for further practical progress.
+- Oscillating or increasing curve: the learning rate or numerical setup may be unsuitable.
+
+---
+
+# 31. Actual vs Predicted Graph
+
+The file:
+
+```text
+ graphs/actual_vs_predicted.png
+```
+
+shows the relationship between actual test targets and model predictions.
+
+A strong prediction model should place predicted points close to the ideal relationship between actual and predicted values.
+
+The plot is useful because numerical metrics alone do not show:
+
+- Whether errors grow for larger target values
+- Whether predictions are systematically too high or too low
+- Whether there are clusters of difficult observations
+- Whether the model compresses extreme values toward the center
+
+The graph therefore complements MAE, RMSE, and R².
+
+---
+
+# 32. Model Comparison Graph
+
+The file:
+
+```text
+ graphs/model_comparison.png
+```
+
+compares the performance metrics of the four classical regression models.
+
+The visualization allows the user to quickly inspect differences that may be difficult to notice in raw numbers.
+
+For MAE, MSE, and RMSE, lower values indicate smaller prediction error.
+
+For R², higher values indicate stronger explained variation on the evaluated test set.
+
+---
+
+# 33. Learning Rate vs Cost Graph
+
+The file:
+
+```text
+ graphs/learning_rate_vs_cost.png
+```
+
+compares the final Gradient Descent cost across learning rates.
+
+In the recorded experiment, the final cost gradually decreases as the tested learning rate increases from 0.001 to 0.1.
+
+However, this does not mean that increasing the learning rate indefinitely will continue to improve optimization. Beyond a stable range, large updates can overshoot a minimum and lead to oscillation or divergence.
+
+---
+
+# 34. Learning Rate and Iteration Comparison
+
+The file:
+
+```text
+ graphs/learning_rate_iterations.png
+```
+
+visualizes the iteration budget associated with each learning-rate experiment.
+
+All four experiments use 3000 iterations in the current implementation. This controlled setup makes learning rate the main experimental variable rather than changing both learning rate and iteration count at the same time.
+
+---
+
+# 35. Implementation Architecture
+
+The project is split into small modules so that each responsibility is separated.
+
+```text
+main.py
+  |
+  +--> data_preprocessing.py
+  |
+  +--> models.py
+  |
+  +--> evaluation.py
+  |
+  +--> visualization.py
+```
+
+### `main.py`
+
+Coordinates the entire experiment:
+
+- Loads and prepares data
+- Trains the four standard regression models
+- Evaluates predictions
+- Runs Gradient Descent experiments
+- Saves result CSV files
+- Generates graphs
+
+### `src/data_preprocessing.py`
+
+Responsible for:
+
+- Loading the dataset
+- Separating features and target
+- Train-test splitting
+- Standardization
+
+### `src/models.py`
+
+Contains:
+
+- Standard regression model definitions
+- Custom `LinearRegressionGD` class
+- Gradient Descent training logic
+- Prediction logic
+- Metric helper
+
+### `src/evaluation.py`
+
+Handles model evaluation and result storage.
+
+### `src/visualization.py`
+
+Generates the project graphs automatically.
+
+---
+
+# 36. Project Structure
 
 ```text
 Regression_Gradient_Descent/
@@ -715,7 +980,8 @@ Regression_Gradient_Descent/
 │
 ├── results/
 │   ├── model_results.csv
-│   └── gradient_descent_results.csv
+│   ├── gradient_descent_results.csv
+│   └── complete_output.txt
 │
 ├── graphs/
 │   ├── actual_vs_predicted.png
@@ -724,85 +990,29 @@ Regression_Gradient_Descent/
 │   ├── learning_rate_vs_cost.png
 │   └── learning_rate_iterations.png
 │
+├── screenshots/
+│   └── Add your execution screenshots here
+│
 ├── main.py
 ├── requirements.txt
+├── .gitignore
+├── GITHUB_UPLOAD_GUIDE.md
 └── README.md
 ```
 
 ---
 
-# 23. Description of Source Files
+# 37. Software Requirements
 
-## `main.py`
+The project requires:
 
-The main experiment driver.
+- Python 3.10+ recommended
+- NumPy
+- Pandas
+- Matplotlib
+- Scikit-learn
 
-It:
-
-- loads the dataset,
-- prepares the data,
-- trains the regression models,
-- evaluates the models,
-- runs Gradient Descent experiments,
-- saves results,
-- and generates graphs.
-
-## `src/data_preprocessing.py`
-
-Responsible for:
-
-- loading the CSV,
-- separating features and target,
-- train-test splitting,
-- feature standardization.
-
-## `src/models.py`
-
-Contains:
-
-- Linear Regression model definitions,
-- Polynomial Regression pipeline,
-- Ridge Regression,
-- Lasso Regression,
-- custom `LinearRegressionGD` implementation,
-- metric calculation.
-
-## `src/evaluation.py`
-
-Contains reusable evaluation and CSV-export functions.
-
-## `src/visualization.py`
-
-Generates the experimental graphs.
-
----
-
-# 24. Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/YOUR_USERNAME/Regression-Gradient-Descent.git
-cd Regression-Gradient-Descent
-```
-
-Create a virtual environment:
-
-### Windows
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-### Linux/macOS
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Install dependencies:
+Install dependencies using:
 
 ```bash
 pip install -r requirements.txt
@@ -810,23 +1020,41 @@ pip install -r requirements.txt
 
 ---
 
-# 25. How to Run
+# 38. Running the Project
 
-Run:
+Open a terminal in the project folder:
+
+```bash
+cd Regression_Gradient_Descent
+```
+
+Install the packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run the experiment:
 
 ```bash
 python main.py
 ```
 
-The program prints the regression results and Gradient Descent results in the terminal.
+The program automatically creates or updates:
 
-It also generates CSV files inside `results/` and graphs inside `graphs/`.
+```text
+results/model_results.csv
+results/gradient_descent_results.csv
+results/complete_output.txt
+```
+
+and the five PNG graphs inside the `graphs/` directory.
 
 ---
 
-# 26. Expected Program Output
+# 39. Expected Program Output
 
-A representative run produces output similar to:
+The included experiment reports:
 
 ```text
 ========================================================================
@@ -838,294 +1066,216 @@ Training samples: 353
 Testing samples : 89
 
 REGRESSION MODEL RESULTS
-...
+                           Model     MAE       MSE    RMSE     R2
+               Linear Regression 42.7941 2900.1936 53.8534 0.4526
+Polynomial Regression (Degree 2) 43.5817 3096.0283 55.6420 0.4156
+                Ridge Regression 42.8120 2892.0146 53.7775 0.4541
+                Lasso Regression 42.7950 2898.3680 53.8365 0.4529
 
 GRADIENT DESCENT RESULTS
-...
-
-Generated files:
-  results/gradient_descent_results.csv
-  results/model_results.csv
-  graphs/actual_vs_predicted.png
-  graphs/gradient_descent_cost.png
-  graphs/learning_rate_iterations.png
-  graphs/learning_rate_vs_cost.png
-  graphs/model_comparison.png
+ Learning Rate  Iterations  Final Cost       MAE      RMSE       R2
+      0.001000        3000    0.238234 42.994994 53.604864 0.457645
+      0.010000        3000    0.236856 42.865809 53.722332 0.455265
+      0.050000        3000    0.235534 42.815545 53.785936 0.453974
+      0.100000        3000    0.235382 42.799299 53.834207 0.452994
 ```
 
-The exact metric values can vary if the data split or implementation configuration is changed. The CSV files generated by the actual run should be treated as the authoritative experimental results.
+These values are generated by the included code and correspond to the current dataset split and configuration.
 
 ---
 
-# 27. Experimental Results
+# 40. Critical Discussion of the Experiment
 
-The included run used:
+## 40.1 Linear and Ridge are very close
 
-```text
-Random state : 42
-Test size    : 20%
-Train size   : 353
-Test size    : 89
-```
+The difference between Linear Regression and Ridge Regression is small. This suggests that the regularization penalty with `alpha=1.0` does not radically change the fitted solution for this dataset.
 
-## 27.1 Regression Model Results
+The small performance difference is still useful because it shows that regularization can affect the optimization objective without necessarily producing a dramatic change in prediction error.
 
-| Model | MAE | MSE | RMSE | R² |
-|---|---:|---:|---:|---:|
-| Linear Regression | 42.7941 | 2900.1936 | 53.8534 | 0.4526 |
-| Polynomial Regression (Degree 2) | 43.5817 | 3096.0283 | 55.6420 | 0.4156 |
-| Ridge Regression | 42.8120 | 2892.0146 | 53.7775 | 0.4541 |
-| Lasso Regression | 42.7950 | 2898.3680 | 53.8365 | 0.4529 |
+## 40.2 Polynomial Regression did not help
 
-### Interpretation
+The polynomial model has more features and more flexibility, but its test RMSE is higher and its R² is lower than the simpler models.
 
-The observed test results are quite close for Linear, Ridge, and Lasso Regression. Ridge has the lowest RMSE and the highest R² among these four models in this particular run, while Polynomial Regression has the largest error values and lower R².
+This is a useful experimental demonstration that increasing complexity can hurt generalization.
 
-This does **not** mean Ridge Regression is universally the best regression algorithm. It means that under this dataset, split, preprocessing pipeline, and selected hyperparameters, Ridge produced the strongest metrics in this particular experiment.
+## 40.3 Lasso remains close to the baseline
 
-Polynomial Regression did not improve the test result in this configuration. The added degree-2 terms increased model flexibility but did not translate into better generalization on the test set.
+Lasso produces almost the same performance as Linear Regression for the selected regularization value. A stronger `alpha` could create greater shrinkage, but that would be a new experiment and should be reported separately rather than assumed to be better.
 
----
+## 40.4 Gradient Descent produces a competitive solution
 
-# 28. Gradient Descent Results
+The custom optimizer produces test metrics in the same general range as the standard Linear Regression baseline.
 
-The included run used 3,000 iterations for each learning rate.
+That demonstrates that the model parameters can be learned iteratively by minimizing the cost function rather than relying only on a library estimator.
 
-| Learning Rate | Iterations | Final Cost | MAE | RMSE | R² |
-|---:|---:|---:|---:|---:|---:|
-| 0.001 | 3000 | 0.238234 | 42.994994 | 53.604863 | 0.457645 |
-| 0.01 | 3000 | 0.236856 | 42.865808 | 53.722332 | 0.455265 |
-| 0.05 | 3000 | 0.235534 | 42.815545 | 53.785936 | 0.453974 |
-| 0.1 | 3000 | 0.235382 | 42.799299 | 53.834207 | 0.452994 |
+## 40.5 Training objective and generalization are different
 
-### Interpretation
+The learning rate of 0.1 achieves the lowest recorded final training cost among the tested rates, but the 0.001 run has the best test RMSE and R² in this particular experiment.
 
-The learning rates tested in this experiment all produced stable results under the selected feature scaling and iteration count.
+This distinction is important:
 
-The final optimization cost decreased as the learning rate increased across the tested values, although the prediction metrics do not improve monotonically in exactly the same order.
+> Optimization minimizes the chosen training objective, while model evaluation measures how well the learned parameters generalize to unseen data.
 
-This is an important observation: **a lower training cost does not automatically guarantee the lowest test error**. Optimization quality and generalization performance are related but distinct concepts.
-
-The 0.001 learning rate makes smaller parameter updates and therefore approaches the solution more slowly. Larger learning rates move more aggressively toward the minimum. However, increasing the learning rate indefinitely would not be safe; an excessively large learning rate can cause oscillation or divergence.
+The two goals are related, but they are not identical.
 
 ---
 
-# 29. Graph Analysis
+# 41. Complexity and Practical Trade-offs
 
-## 29.1 Actual vs Predicted Graph
-
-`graphs/actual_vs_predicted.png` plots actual target values against predicted values for the model with the highest R² in the experiment.
-
-A perfect prediction would place points directly on the diagonal reference line.
-
-Points far from the line represent larger prediction errors.
-
-The plot should therefore be interpreted together with MAE, RMSE, and R² rather than as a standalone measure.
+| Method | Main Benefit | Main Cost / Limitation |
+|---|---|---|
+| Linear Regression | Simple and interpretable | Limited nonlinear modeling |
+| Polynomial Regression | Captures nonlinear patterns | More features and overfitting risk |
+| Ridge | Regularization and stability | Requires choosing `alpha` |
+| Lasso | Regularization + sparsity | Can suppress correlated features |
+| Gradient Descent | Shows optimization process and scalable idea | Requires learning-rate and iteration tuning |
 
 ---
 
-## 29.2 Model Comparison Graph
+# 42. Important Concepts Demonstrated
 
-`graphs/model_comparison.png` compares the main regression metrics across the four models.
+This project demonstrates several machine-learning principles.
 
-The graph helps visually identify differences in:
+### Bias and variance
 
-- MAE,
-- RMSE,
-- and R².
+A simple model may have higher bias and fail to capture useful structure. A more flexible model can reduce bias but may increase variance and overfit.
 
-Because MAE/RMSE and R² have different scales and meanings, the graph is intended for visual comparison rather than as a single combined score.
+### Regularization
 
----
+Ridge and Lasso modify the learning objective to discourage overly complex coefficient values.
 
-## 29.3 Gradient Descent Cost Curve
+### Generalization
 
-`graphs/gradient_descent_cost.png` shows the cost function across iterations for the 0.05 learning rate.
+Training performance alone is insufficient. Test-set performance is needed to estimate how the model behaves on unseen samples.
 
-A generally decreasing curve indicates that the optimization process is reducing the training objective.
+### Optimization
 
-If the curve oscillates heavily or grows, the learning rate may be too large or the numerical setup may be unstable.
+Gradient Descent provides an iterative strategy for minimizing an objective function.
 
----
+### Hyperparameters
 
-## 29.4 Learning Rate vs Cost
-
-`graphs/learning_rate_vs_cost.png` compares the final optimization cost for different learning rates.
-
-This graph demonstrates that learning rate is an important hyperparameter in iterative optimization.
+Learning rate, number of iterations, polynomial degree, and regularization strength affect model behavior and must be chosen deliberately.
 
 ---
 
-# 30. Critical Comparative Analysis
-
-## Linear Regression vs Polynomial Regression
-
-Linear Regression provides a simple baseline. Polynomial Regression adds nonlinear and interaction terms.
-
-In the observed experiment:
-
-- Linear Regression achieved RMSE = 53.8534.
-- Polynomial Regression achieved RMSE = 55.6420.
-
-The polynomial model therefore did not improve the test performance in this configuration.
-
-A possible explanation is that the added degree-2 features increased model flexibility without capturing a useful generalizable pattern in the available training data. Higher-dimensional polynomial features can also increase the risk of overfitting.
-
-This result demonstrates why increasing model complexity should be supported by validation evidence rather than assumed to improve performance.
-
----
-
-## Linear Regression vs Ridge Regression
-
-The observed results were:
-
-```text
-Linear RMSE = 53.8534
-Ridge  RMSE = 53.7775
-```
-
-Ridge produced a slightly lower RMSE and slightly higher R² in this run.
-
-The difference is small, which indicates that regularization provided only a modest change under the selected alpha and dataset split.
-
-A stronger conclusion would require repeated cross-validation and hyperparameter tuning.
-
----
-
-## Linear Regression vs Lasso Regression
-
-The observed results were very close:
-
-```text
-Linear R² = 0.4526
-Lasso  R² = 0.4529
-```
-
-The small difference suggests that the selected Lasso regularization did not dramatically change predictive performance.
-
-Lasso can still be useful when interpretability or sparse feature representations are important, even when its prediction score is similar to Linear Regression.
-
----
-
-# 31. Critical Analysis of Gradient Descent
-
-Gradient Descent provides an iterative way to obtain Linear Regression parameters.
-
-The experiment shows several important concepts.
-
-### Observation 1 — Learning Rate Matters
-
-The learning rate determines the size of each update.
-
-```text
-Small α  → smaller updates → slower progress
-Large α  → larger updates → faster progress, but greater instability risk
-```
-
-### Observation 2 — Cost and Test Metrics Are Different
-
-The cost function is calculated on training data during optimization, whereas MAE/RMSE/R² reported here are calculated on the test set.
-
-Therefore, a lower final training cost should not automatically be interpreted as better generalization.
-
-### Observation 3 — Feature Scaling Helps
-
-Scaling makes the numerical optimization more stable because the feature dimensions are placed on comparable scales.
-
-### Observation 4 — Fixed Iteration Count
-
-The learning-rate experiment uses the same maximum iteration count for every rate. This creates a controlled comparison, but it does not measure the exact number of iterations required for convergence.
-
-A future version could implement an early-stopping criterion based on the change in cost or gradient norm.
-
----
-
-# 32. Advantages of the Project
-
-- Uses a real-world regression problem.
-- Includes multiple regression models.
-- Uses multiple evaluation metrics.
-- Implements Gradient Descent manually.
-- Tests multiple learning rates.
-- Uses training-only feature scaling.
-- Generates reproducible CSV results.
-- Generates graphs automatically.
-- Separates code into reusable modules.
-- Includes detailed documentation.
-
----
-
-# 33. Limitations
+# 43. Limitations
 
 The current experiment has several limitations.
 
-### 33.1 Single Train-Test Split
+### Dataset size
 
-Only one random train-test split is used. Results can change with another split.
+The dataset contains 442 records, which is suitable for an academic demonstration but small compared with many industrial machine-learning problems.
 
-### 33.2 Limited Hyperparameter Search
+### Single train-test split
 
-The project uses selected values for Ridge and Lasso rather than an extensive cross-validation search.
+The current results are based on one 80/20 split with `random_state=42`. A different split may produce different metrics.
 
-### 33.3 Polynomial Degree
+### Limited hyperparameter search
 
-Only degree 2 is tested. Other degrees could be evaluated, but higher degrees may substantially increase feature count and overfitting risk.
+Only one degree is tested for Polynomial Regression, and one regularization value is used for Ridge and Lasso.
 
-### 33.4 Limited Gradient Descent Study
+### Fixed number of iterations
 
-Only four learning rates are tested and the number of iterations is fixed.
+The Gradient Descent experiments use 3000 iterations for every learning rate. The implementation does not currently stop automatically when a convergence tolerance is reached.
 
-### 33.5 Dataset Size
+### Limited feature engineering
 
-The dataset contains 442 observations, which is relatively small compared with many modern machine-learning datasets.
+No advanced feature construction or domain-specific feature engineering is performed.
 
-### 33.6 Generalization
+### Synthetic interpretation risk
 
-The experimental result should not be interpreted as evidence that one model will always outperform another on different datasets.
-
----
-
-# 34. Future Scope
-
-The project can be extended using:
-
-1. K-Fold Cross Validation.
-2. Grid Search for Ridge and Lasso alpha.
-3. More polynomial degrees.
-4. Elastic Net Regression.
-5. Robust Regression.
-6. Early stopping for Gradient Descent.
-7. Mini-Batch Gradient Descent.
-8. Stochastic Gradient Descent.
-9. Momentum-based optimization.
-10. Adaptive learning-rate methods such as Adam for more advanced optimization experiments.
-11. Feature importance and coefficient analysis.
-12. Residual plots.
-13. Confidence intervals and statistical analysis.
-14. Multiple random train-test splits.
-15. Hyperparameter sensitivity analysis.
+Although the dataset represents a real application domain, this project is an academic machine-learning experiment and should not be interpreted as a deployable clinical prediction system.
 
 ---
 
-# 35. Reproducibility
+# 44. Future Improvements
 
-The project uses `random_state=42` for the train-test split.
+Several improvements can make the project more advanced.
 
-This means the same split can be reproduced when the same software versions and dataset are used.
+## Cross-validation
 
-To reproduce the experiment:
+Use k-fold cross-validation to estimate performance across multiple train-validation splits instead of relying on a single split.
 
-```bash
-pip install -r requirements.txt
-python main.py
+## Hyperparameter tuning
+
+Search over:
+
+- Ridge `alpha`
+- Lasso `alpha`
+- Polynomial degree
+- Gradient Descent learning rate
+- Number of iterations
+
+## Early stopping
+
+Stop Gradient Descent when the reduction in cost becomes smaller than a chosen tolerance.
+
+Example condition:
+
+\[
+|J_t-J_{t-1}|<\epsilon
+\]
+
+## Mini-batch Gradient Descent
+
+For larger datasets, mini-batches can reduce the cost of computing every update on the full training dataset.
+
+## Learning-rate schedules
+
+The learning rate can be reduced during training to combine rapid initial progress with stable final optimization.
+
+## Feature analysis
+
+Coefficient magnitude, permutation importance, or other explanatory methods could be used to investigate which input variables contribute most strongly to predictions.
+
+## Error analysis
+
+Residual plots can be added to investigate whether the model makes systematic errors for particular target ranges.
+
+---
+
+# 45. Reproducibility
+
+The experiment is configured for reproducibility using:
+
+```text
+train_test_split(..., random_state=42)
 ```
 
-The generated files are:
+This ensures that the same train-test partition is generated when the same dataset and software setup are used.
+
+For exact reproduction of numerical results, use the same:
+
+- Dataset file
+- Python version
+- Package versions
+- Preprocessing steps
+- Random state
+- Model hyperparameters
+- Learning rates
+- Number of iterations
+
+Small differences can still occur because of environment and dependency changes.
+
+---
+
+# 46. Generated Outputs
+
+After running `python main.py`, the repository contains two major classes of outputs.
+
+## Numerical outputs
 
 ```text
 results/model_results.csv
 results/gradient_descent_results.csv
+results/complete_output.txt
+```
 
+These files make the experiment easy to inspect and reuse for report tables.
+
+## Visual outputs
+
+```text
 graphs/actual_vs_predicted.png
 graphs/model_comparison.png
 graphs/gradient_descent_cost.png
@@ -1133,282 +1283,147 @@ graphs/learning_rate_vs_cost.png
 graphs/learning_rate_iterations.png
 ```
 
+These visualizations provide evidence of the experimental results and optimization behavior.
+
 ---
 
-# 36. GitHub Upload Instructions
+# 47. How the Code Works Internally
 
-## Step 1 — Create Repository
+The most important custom class is:
 
-Go to GitHub and create a new repository named:
+```python
+class LinearRegressionGD:
+```
+
+Its `fit()` method performs the optimization.
+
+Conceptually:
+
+```python
+Xb = np.c_[np.ones(X.shape[0]), X]
+theta = np.zeros(Xb.shape[1])
+
+for _ in range(n_iterations):
+    predictions = Xb @ theta
+    errors = predictions - y
+    cost = np.mean(errors ** 2) / 2.0
+    gradient = (Xb.T @ errors) / m
+    theta -= learning_rate * gradient
+```
+
+This compact block contains the essential mechanics of Gradient Descent:
+
+1. Prediction
+2. Error calculation
+3. Cost calculation
+4. Gradient calculation
+5. Parameter update
+
+The learned `theta` values are then used in `predict()`.
+
+---
+
+# 48. Why NumPy is Used for Gradient Descent
+
+NumPy allows the implementation to express Gradient Descent with vectorized matrix operations instead of slow Python loops over every feature and every example.
+
+For example:
+
+```python
+predictions = Xb @ theta
+```
+
+performs matrix-vector multiplication, while:
+
+```python
+gradient = (Xb.T @ errors) / m
+```
+
+computes all parameter gradients at once.
+
+This makes the implementation concise, mathematically transparent, and computationally efficient for a dataset of this size.
+
+---
+
+# 49. Why Scikit-learn is Used
+
+Scikit-learn is used for the standard regression estimators and common preprocessing utilities.
+
+This has two benefits:
+
+1. It provides reliable reference implementations for comparison.
+2. It allows the custom Gradient Descent implementation to be evaluated against a standard Linear Regression workflow.
+
+The project therefore combines **library-based models** with a **from-scratch optimization implementation**.
+
+---
+
+# 50. Ethical and Practical Considerations
+
+Because the application domain is healthcare-related, model outputs should be interpreted carefully.
+
+The project demonstrates regression algorithms and optimization techniques. It does not establish clinical validity, diagnosis capability, treatment recommendations, or safety for real patient use.
+
+A real deployment would require additional work including validated clinical datasets, careful bias assessment, privacy controls, external validation, uncertainty analysis, domain-expert review, and appropriate regulatory and ethical oversight.
+
+---
+
+# 51. Conclusion
+
+This project demonstrates how regression models can be applied to a real-world prediction problem and how their performance can be evaluated using quantitative metrics.
+
+Four regression approaches were compared:
+
+- Linear Regression
+- Polynomial Regression
+- Ridge Regression
+- Lasso Regression
+
+The experimental results show that the simpler models perform competitively on this dataset, while the degree-2 Polynomial model does not improve test performance in the current configuration. Ridge provides a small improvement in RMSE and R² compared with ordinary Linear Regression.
+
+The second part of the project implements **Batch Gradient Descent from scratch** for Linear Regression. Multiple learning rates were tested to study optimization behavior. The experiments demonstrate that learning-rate selection affects the final training objective and the resulting test performance.
+
+The project therefore connects the theory of regression with the practical mechanics of optimization:
 
 ```text
-Regression-Gradient-Descent
+Regression Model
+      ↓
+Define Cost Function
+      ↓
+Compute Gradient
+      ↓
+Update Parameters
+      ↓
+Reduce Cost
+      ↓
+Generate Predictions
+      ↓
+Evaluate on Unseen Data
 ```
 
-Do not create unnecessary files if you already have the project locally.
-
-## Step 2 — Open Terminal in Project Folder
-
-```bash
-cd Regression_Gradient_Descent
-```
-
-## Step 3 — Initialize Git
-
-```bash
-git init
-```
-
-## Step 4 — Add Files
-
-```bash
-git add .
-```
-
-## Step 5 — Commit
-
-```bash
-git commit -m "Regression models and Gradient Descent implementation"
-```
-
-## Step 6 — Set Main Branch
-
-```bash
-git branch -M main
-```
-
-## Step 7 — Connect GitHub Repository
-
-Replace `YOUR_USERNAME` with your GitHub username:
-
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/Regression-Gradient-Descent.git
-```
-
-## Step 8 — Push
-
-```bash
-git push -u origin main
-```
-
-After the push, refresh your GitHub repository and verify that the folders and files are visible.
+The main learning outcome is that a good machine-learning solution requires more than training a model. It also requires appropriate preprocessing, suitable metrics, careful optimization, experimental comparison, interpretation of results, and recognition of the limitations of the evidence.
 
 ---
 
-# 37. Recommended GitHub Repository Appearance
+# 52. References
 
-The repository should display approximately:
-
-```text
-Regression-Gradient-Descent
-│
-├── data
-│   └── diabetes_regression.csv
-│
-├── graphs
-│   ├── actual_vs_predicted.png
-│   ├── gradient_descent_cost.png
-│   ├── learning_rate_iterations.png
-│   ├── learning_rate_vs_cost.png
-│   └── model_comparison.png
-│
-├── results
-│   ├── gradient_descent_results.csv
-│   └── model_results.csv
-│
-├── src
-│   ├── __init__.py
-│   ├── data_preprocessing.py
-│   ├── evaluation.py
-│   ├── models.py
-│   └── visualization.py
-│
-├── .gitignore
-├── main.py
-├── README.md
-└── requirements.txt
-```
-
-This organization makes it easy for an evaluator to find the code, data, results, graphs, and documentation.
+1. Hastie, T., Tibshirani, R., & Friedman, J. *The Elements of Statistical Learning: Data Mining, Inference, and Prediction*. Springer.
+2. Géron, A. *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*. O'Reilly Media.
+3. Pedregosa, F. et al. *Scikit-learn: Machine Learning in Python*. Journal of Machine Learning Research.
+4. Efron, B., Hastie, T., Johnstone, I., & Tibshirani, R. *Least Angle Regression*. The Annals of Statistics, 2004.
+5. NumPy documentation for numerical linear algebra and array operations.
+6. Pandas documentation for data loading and manipulation.
+7. Matplotlib documentation for data visualization.
 
 ---
 
-# 38. Screenshots to Include for the Academic Submission
-
-For the final report/PDF/PPT, take screenshots of:
-
-### Screenshot 1 — Dataset
-
-Show:
-
-```text
-data/diabetes_regression.csv
-```
-
-or the first rows of the dataset.
-
-### Screenshot 2 — Code Structure
-
-Show the VS Code project structure.
-
-### Screenshot 3 — Successful Execution
-
-Show:
-
-```text
-python main.py
-```
-
-with the generated results visible.
-
-### Screenshot 4 — Regression Results
-
-Show the model metrics table.
-
-### Screenshot 5 — Model Comparison Graph
-
-Show:
-
-```text
-graphs/model_comparison.png
-```
-
-### Screenshot 6 — Gradient Descent Cost Curve
-
-Show:
-
-```text
-graphs/gradient_descent_cost.png
-```
-
-### Screenshot 7 — Learning Rate Analysis
-
-Show:
-
-```text
-graphs/learning_rate_vs_cost.png
-```
-
-### Screenshot 8 — GitHub Repository
-
-Show the uploaded repository containing the code, data, results, graphs and README.
-
----
-
-# 39. Rubric Mapping
-
-The project is specifically structured around the supplied 10-mark rubric.
-
-## Criterion 1 — Model Selection & Application — 2.5 Marks
-
-Evidence provided:
-
-- Real-world regression problem.
-- Four regression approaches.
-- Explanation of why each model was selected.
-- Mathematical foundations.
-- Data preprocessing methodology.
-- Explanation of Gradient Descent.
-- Application of each technique to the selected problem.
-
-The README documents the relationship between the problem and each model rather than simply listing algorithms.
-
----
-
-## Criterion 2 — Implementation, Output Quality & Analysis — 2.5 Marks
-
-Evidence provided:
-
-- Modular Python implementation.
-- Dataset included in repository.
-- Reproducible train-test split.
-- Appropriate preprocessing.
-- MAE, MSE, RMSE and R² calculations.
-- Custom Gradient Descent implementation.
-- Multiple learning-rate experiments.
-- CSV result files.
-- Automatically generated graphs.
-- Successful terminal output.
-
----
-
-## Criterion 3 — Critical Analysis & Evaluation — 2.5 Marks
-
-Evidence provided:
-
-- Model-to-model comparison.
-- Metric interpretation.
-- Polynomial model analysis.
-- Regularization analysis.
-- Learning-rate analysis.
-- Cost-function interpretation.
-- Discussion of training objective versus test performance.
-- Limitations of a single train-test split.
-- Future experimental improvements.
-
-The analysis avoids treating one experimental result as a universal conclusion.
-
----
-
-## Criterion 4 — Professionalism, Creativity, Communication & Reflection — 2.5 Marks
-
-Evidence provided:
-
-- Professional repository structure.
-- Detailed README.
-- Modular source code.
-- Automatically generated visualizations.
-- Experimental CSV outputs.
-- Reproducibility instructions.
-- GitHub upload instructions.
-- Limitations and future scope.
-- Reflection through interpretation of model and optimization behavior.
-
----
-
-# 40. Reflection
-
-This project demonstrates that implementing a machine-learning algorithm is not limited to calling a library function. A complete regression experiment requires understanding the problem, selecting appropriate models, preparing data correctly, defining evaluation metrics, interpreting results, and identifying limitations.
-
-The Gradient Descent experiment was particularly useful because it demonstrates how model parameters can be learned iteratively. The learning-rate experiment also shows that optimization behavior and predictive generalization are not exactly the same concept.
-
-The project also demonstrates why model complexity should be justified experimentally. Polynomial Regression added additional nonlinear terms, but the observed test results did not improve compared with the simpler models. Similarly, regularization produced only small changes under the selected hyperparameters.
-
-Therefore, the main learning outcome is not simply identifying a model with a particular score. It is understanding the complete workflow from data preparation to model evaluation and critical interpretation.
-
----
-
-# 41. Conclusion
-
-This project developed and evaluated multiple regression models for a real-world continuous prediction problem and implemented Gradient Descent optimization for Linear Regression.
-
-Linear Regression was used as the baseline, Polynomial Regression was used to investigate nonlinear feature expansion, Ridge Regression was used to study L2 regularization, and Lasso Regression was used to study L1 regularization and sparsity.
-
-MAE, MSE, RMSE and R² were used to evaluate predictive performance. In the included experimental run, Ridge Regression produced a slightly lower RMSE and slightly higher R² than the other tested models, while Polynomial Regression produced weaker test metrics in the selected degree-2 configuration.
-
-Gradient Descent was implemented from scratch and evaluated with several learning rates. The results demonstrate the relationship between learning rate, optimization cost, and test prediction metrics.
-
-Overall, the project demonstrates a complete machine-learning regression workflow and provides experimental evidence, visualization, implementation details, critical analysis, and reproducibility information suitable for academic evaluation.
-
----
-
-# 42. References
-
-1. Scikit-learn Documentation — Regression, preprocessing, metrics and datasets.
-2. Pedregosa et al., *Scikit-learn: Machine Learning in Python*, Journal of Machine Learning Research, 2011.
-3. Efron, Hastie, Johnstone and Tibshirani, *Least Angle Regression*, Annals of Statistics, 2004.
-4. Géron, Aurélien, *Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow*, O'Reilly.
-5. NumPy Documentation.
-6. Pandas Documentation.
-7. Matplotlib Documentation.
-
----
-
-# 43. Academic Integrity Note
-
-This repository is intended as an academic implementation and learning project. Experimental values shown in this README correspond to the included implementation and dataset configuration. If the code, random split, hyperparameters, or software environment is changed, the results should be regenerated and reported from the new execution.
-
-The repository should be submitted together with the student's own explanation, screenshots, presentation/report, and understanding of the implementation.
+## Author / Project Information
+
+**Project:** Regression Models and Gradient Descent Optimization  
+**Application:** Disease Progression Prediction  
+**Language:** Python  
+**Main Libraries:** NumPy, Pandas, Matplotlib, Scikit-learn  
+**Optimization Method:** Batch Gradient Descent  
 
 ---
 
@@ -1419,11 +1434,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Then check:
+The generated results and graphs can then be found in:
 
 ```text
 results/
 graphs/
 ```
-
-for the generated experimental evidence.
