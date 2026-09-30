@@ -1427,5 +1427,3 @@ graphs/
 ```
 
 for the generated experimental evidence.
-#   R e g r e s s i o n - M o d e l s - G r a d i e n t - D e s c e n t  
- 
