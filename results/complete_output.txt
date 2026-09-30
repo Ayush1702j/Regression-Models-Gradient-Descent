@@ -1,0 +1,30 @@
+========================================================================
+REGRESSION MODELS + GRADIENT DESCENT EXPERIMENT
+Real-world application: Disease Progression Prediction
+========================================================================
+Dataset shape: 442 rows x 11 columns
+Training samples: 353
+Testing samples : 89
+
+REGRESSION MODEL RESULTS
+                           Model     MAE       MSE    RMSE     R2
+               Linear Regression 42.7941 2900.1936 53.8534 0.4526
+Polynomial Regression (Degree 2) 43.5817 3096.0283 55.6420 0.4156
+                Ridge Regression 42.8120 2892.0146 53.7775 0.4541
+                Lasso Regression 42.7950 2898.3680 53.8365 0.4529
+
+GRADIENT DESCENT RESULTS
+ Learning Rate  Iterations  Final Cost       MAE      RMSE       R2
+      0.001000        3000    0.238234 42.994994 53.604863 0.457645
+      0.010000        3000    0.236856 42.865808 53.722332 0.455265
+      0.050000        3000    0.235534 42.815545 53.785936 0.453974
+      0.100000        3000    0.235382 42.799299 53.834207 0.452994
+
+Generated files:
+  results/gradient_descent_results.csv
+  results/model_results.csv
+  graphs/actual_vs_predicted.png
+  graphs/gradient_descent_cost.png
+  graphs/learning_rate_iterations.png
+  graphs/learning_rate_vs_cost.png
+  graphs/model_comparison.png
